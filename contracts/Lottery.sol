@@ -8,7 +8,7 @@ import "@chainlink/contracts/src/v0.6/VRFConsumerBase.sol";
 
 contract Lottery is VRFConsumerBase, Ownable {
     address payable[] public players;
-    address public recentWinner;
+    address payable public recentWinner;
     uint256 public usdEntryFee;
     uint256 public randomness;
     AggregatorV3Interface internal ethUsdPriceFeed;
@@ -20,6 +20,7 @@ contract Lottery is VRFConsumerBase, Ownable {
     LOTTERY_STATE public lottery_state;
     uint256 public fee;
     bytes32 public keyhash;
+    event RequestedRandomness(bytes32 requestId);
 
     constructor(
         address _priceFeedAddress,
@@ -54,10 +55,10 @@ contract Lottery is VRFConsumerBase, Ownable {
             lottery_state == LOTTERY_STATE.CLOSED,
             "Can't start a new lottery yet!"
         );
-        lottery_state == LOTTERY_STATE.OPEN;
+        lottery_state = LOTTERY_STATE.OPEN;
     }
 
-    function endLottery() public {
+    function endLottery() public onlyOwner{
         // uint256(
         //     keccak256(
         //         abi.encodePacked(
@@ -70,9 +71,9 @@ contract Lottery is VRFConsumerBase, Ownable {
         // ) % players.length;
         lottery_state = LOTTERY_STATE.CALCULATING_WINNER;
         bytes32 requestId = requestRandomness(keyhash, fee);
+        emit RequestedRandomness(requestId);
     }
 
-    // randomness lay tu dau vay ???
     function fulfillRandomness(bytes32 _requestId, uint256 _randomness)
         internal
         override
