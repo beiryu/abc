@@ -14,7 +14,6 @@ def test_can_pick_winner():
         pytest.skip()
     # arragne
     lottery = deploy_lottery()
-    time.sleep(60)
     account = get_account()
     lottery.enter({"from": account, "value": lottery.getEntranceFee()})
     lottery.enter({"from": account, "value": lottery.getEntranceFee()})
